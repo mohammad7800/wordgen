@@ -23,14 +23,14 @@ def main():
     num = int(a if a not in string.ascii_letters[:52] else main())
     if num == 0:
         os.system('cls' if os.name == 'nt' else 'clear')
-        file = open(input('input file path ==> '), 'r')
+        file0 = open(input('input file path ==> '), 'r')
         lst = list(file.read().split('\n'))
         for i in range(len(lst)):
             h = random.randint(0, len(lst) - 1)
             lst[i], lst[h] = lst[h], lst[i]
         file2 = open(input('output file path ==> '), 'w')
         file2.write("\n".join(lst))
-        file.close()
+        file0.close()
         file2.close()
         main()
     elif num == 1:
@@ -75,6 +75,4 @@ def main():
         sys.exit()
     else:
         main()
-
-
 main()
