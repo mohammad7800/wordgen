@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import argparse
 from sys import argv, exit
 from random import randint, choice
