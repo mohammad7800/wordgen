@@ -3,45 +3,55 @@ from sys import argv, exit
 from random import randint, choice
 from itertools import product
 from time import time
-from chardet import detect
+from encod import detect
+import re
 is_printed = False
 
 
 def flt(x):
     au = 'auioe'
-    for i in range(len(x)):
-        try:
-            if x[i] in au:
-                if x[i+1] in au:
-                    if x[i] == x[i+1]:
+    regex = re.compile('[-=@_!#$%^&*()<>?/\|}{~:]')
+    if not regex.findall(x):
+        for i in range(len(x)):
+            try:
+                if x[i] in au:
+                    if x[i+1] in au:
+                        if x[i] == x[i+1]:
+                            continue
+                        else:
+                            if not i == 0:
+                                if not x[i] == x[i-1]:
+                                    return False
+                            else:
+                                return False
+                    else:
+                        continue
+                else:
+                    if x[i+1] in au:
                         continue
                     else:
-                        if not i == 0:
-                            if not x[i] == x[i-1]:
-                                return False
+                        if x[i] == x[i+1]:
+                            continue
                         else:
-                            return False
-                else:
-                    continue
-            else:
-                if x[i+1] in au:
-                    continue
-                else:
-                    if x[i] == x[i+1]:
-                        continue
-                    else:
-                        if not i == 0:
-                            if not x[i] == x[i-1]:
+                            if not i == 0:
+                                if not x[i] == x[i-1]:
+                                    return False
+                            else:
                                 return False
-                        else:
-                            return False
 
-        except IndexError:
-            return True
+            except IndexError:
+                return True
+        return True
+    else:
+        for l in re.findall(r"[\w']+", x):
+            if flt(l):
+                continue
+            else:
+                return False
     return True
 
 
-banner1 = """
+banner1 = r"""
                        _                  
                       | |                 
 __      _____  _ __ __| | __ _  ___ _ __  
@@ -51,22 +61,22 @@ __      _____  _ __ __| | __ _  ___ _ __
                           __/ |           
                          |___/            
 """
-banner2 = """
+banner2 = r"""
                         |                  
 \ \  \   / _ \   __| _` |  _` |  _ \ __ \  
  \ \  \ / (   | |   (   | (   |  __/ |   | 
   \_/\_/ \___/ _|  \__,_|\__, |\___|_|  _| 
                          |___/             
 """
-banner3 = """
+banner3 = r"""
                          __               
  _      ______  _________/ /___ ____  ____ 
-| | /| / / __ \/ ___/ __  / __ `/ _ \/ __ \\
+| | /| / / __ \/ ___/ __  / __ `/ _ \/ __ \
 | |/ |/ / /_/ / /  / /_/ / /_/ /  __/ / / /
 |__/|__/\____/_/   \__,_/\__, /\___/_/ /_/ 
                         /____/             
 """
-banner4 = """
+banner4 = r"""
                        _                  
 __      _____  _ __ __| | __ _  ___ _ __  
 \ \ /\ / / _ \| '__/ _` |/ _` |/ _ \ '_ \ 
@@ -97,28 +107,50 @@ arg = parser.parse_args()
 if len(argv) == 1:
     parser.print_help()
 
-if args_dict['output'] is None and len(argv) != 1:
-    print('-o/--output arguments are required')
+if args_dict['output'] is None and args_dict['join']is None and len(argv) != 1:
+    print('-o/--output arguments are required\n')
     exit()
 
-if args_dict['input'] is None and args_dict['make_wordlist'] is None and args_dict['combine_words'] is None and args_dict['remove_from'] is None and len(argv) != 1:
-    print('Wordgen needs at least one input')
+if args_dict['input'] is None and args_dict['make_wordlist'] is None and args_dict['combine_words'] is None and args_dict['remove_from'] is None and args_dict['join'] is None and len(argv) != 1:
+    print('Wordgen needs at least one input\n')
     exit()
 
 
 if args_dict['remove_from'] is not None:
     if args_dict['input'] is not None:
-        print('option -rm should be used alone')
+        print('option -rm should be used alone\n')
         exit()
     elif args_dict['make_wordlist'] is not None:
-        print('option -rm should be used alone')
+        print('option -rm should be used alone\n')
         exit()
     elif args_dict['combine_words'] is not None:
-        print('option -rm should be used alone')
+        print('option -rm should be used alone\n')
         exit()
 
 
 lst = []
+if args_dict['join'] is not None:
+    try:
+        if not is_printed:
+            print('Working on it ...\n')
+            is_printed = True
+        try:
+            tm
+        except NameError:
+            tm = time()
+        encod = detect(open(args_dict['join'][0], 'rb').readline())['encoding']
+        with open(args_dict['join'][0], 'a', encoding=encod) as r:
+            for ut in args_dict['join'][1:]:
+                necod = detect(open(ut, 'rb').readline())['encoding']
+                with open(ut, 'r', encoding=necod) as ry:
+                    while True:
+                        data = ry.readline()
+                        if not data:
+                            break
+                        r.write(data)
+    except FileNotFoundError as le:
+        print('File is not found ', le)
+
 if args_dict['combine_words'] is not None:
     if args_dict['input'] is not None:
         print('option -c coudn\'t be used with -i')
@@ -151,12 +183,14 @@ if args_dict['remove_from'] is not None:
         tm
     except NameError:
         tm = time()
-    a, b = tuple(args_dict['remove_from'])
-    lst = open(a, 'r').read().split('\n')
-    for v in open(b, 'r').read().split('\n'):
-        if lst.count(v) != 0:
-            del lst[lst.index(v)]
-
+    try:
+        a, b = tuple(args_dict['remove_from'])
+        lst = open(a, 'r').read().split('\n')
+        for v in open(b, 'r').read().split('\n'):
+            if lst.count(v) != 0:
+                del lst[lst.index(v)]
+    except FileNotFoundError as le:
+        print('File not found', le)
 if args_dict['input'] is not None:
     try:
         tm
@@ -165,10 +199,13 @@ if args_dict['input'] is not None:
     if not is_printed:
         print('Working on it ...\n')
         is_printed = True
-    for t in args_dict['input']:
-        encod = detect(open(str(t), 'rb').read())['encoding']
-        for l in open(str(t), 'rb').read().decode(encod).split('\n'):
-            lst.append(l.strip('\r'))
+    try:
+        for t in args_dict['input']:
+            encod = detect(open(str(t), 'rb').read())['encoding']
+            for l in open(str(t), 'rb').read().decode(encod).split('\n'):
+                lst.append(l.strip('\r'))
+    except FileNotFoundError as le:
+        print('File not found ', le)
 if arg.filter_words:
     lst = list(filter(flt, lst))
 if arg.randomize:
@@ -198,6 +235,14 @@ if args_dict['output'] is not None:
                 tn = time()
                 print('Done in ' + str(tm - tn) + ' seconds')
         del lst
+        print('\n')
+        exit()
     except NameError:
         print('lst is not defined')
-print('\n')
+        exit()
+try:
+    print('Done in '+str((tm-time()))+' seconds.')
+    print('\n')
+except NameError:
+    print('\n')
+    exit()
