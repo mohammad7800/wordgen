@@ -9,7 +9,7 @@ is_printed = False
 
 
 def flt(x):
-    au = 'auioe'
+    au = 'auioe1234567890'
     regex = re.compile('[-=@_!#$%^&*()<>?/\|}{~:]')
     if not regex.findall(x):
         for i in range(len(x)):
