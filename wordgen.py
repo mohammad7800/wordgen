@@ -204,6 +204,7 @@ if args_dict['make_big_wordlist'] is not None:
         exit()
     tm = time()
     print('Working on it ...\n')
+    args_dict['make_big_wordlist'] = replace_list(args_dict['make_big_wordlist'])
     for n in args_dict['make_big_wordlist']:
         args_dict['make_big_wordlist'][args_dict['make_big_wordlist'].index(n)] = remove_duplicate(n)
     with open(args_dict['output'][0], 'w') as ng:
